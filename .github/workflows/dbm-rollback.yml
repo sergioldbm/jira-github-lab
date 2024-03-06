@@ -29,19 +29,20 @@ jobs:
         
       - name: Downgrading DBM Environment
         run: |
-             echo "Downgrading"
-                 if ( ${{ env.NEW_STATE }} -eq 10000 ) 
+              echo "Downgrading"
+              if ( ${{ env.NEW_STATE }} -eq 10000 ) # ToDo
                   {
                     java -jar "${{ env.jarPath }}" -Rollback -ProjectName "${{ env.DBMprojectName }}"  -EnvName "Release Source" -PackageName " ${{ github.event.client_payload.package_id }}" -BackupBehavior True -RestoreBehavior True -Server "${{ env.DBMserver }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
-                    java -jar "${{ env.jarPath }}" -Rollback -ProjectName "${{ env.DBMprojectName }}"  -EnvName "QA_Env_1" -PackageName " ${{ github.event.client_payload.package_id }}" -BackupBehavior True -RestoreBehavior True -Server "${{ env.DBMserver }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"                  }
-              elseif ( ${{ env.NEW_STATE }} -eq 10002 ) 
+                    java -jar "${{ env.jarPath }}" -Rollback -ProjectName "${{ env.DBMprojectName }}"  -EnvName "QA_Env_1" -PackageName " ${{ github.event.client_payload.package_id }}" -BackupBehavior True -RestoreBehavior True -Server "${{ env.DBMserver }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"                  
+                  }
+              elseif ( ${{ env.NEW_STATE }} -eq 10002 ) # Ready to QA
                   {
-                    java -jar "${{ env.jarPath }}" -Upgrade -ProjectName "${{ env.DBMprojectName }}"  -EnvName "Prod_Env_1" -PackageName " ${{ github.event.client_payload.package_id }}" -BackupBehavior True -RestoreBehavior True -Server "${{ env.DBMserver }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
+                    java -jar "${{ env.jarPath }}" -Rollback -ProjectName "${{ env.DBMprojectName }}"  -EnvName "Prod_Env_1" -PackageName " ${{ github.event.client_payload.package_id }}" -BackupBehavior True -RestoreBehavior True -Server "${{ env.DBMserver }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
                   }
               else
                   {
-                  echo ${{ github.event.client_payload.dbm_action }}
-                  Write-Output "Downgrade Transition not found ${{ env.NEW_STATE }}"
+                    echo ${{ github.event.client_payload.dbm_action }}
+                    Write-Output "Downgrade Transition not found ${{ env.NEW_STATE }}"
                   }
    
 
