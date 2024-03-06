@@ -9,7 +9,7 @@ env:
   DBMauthToken: "zhsiecDKHTGeZBodgykvX1O5H0E5YzaI"
   jira_secret: "ATATT3xFfGF08wUBk8Adbx0zDBPqiB78ISQGv0K5VYlbq9hOLd5bc0iATB8-0S-Ni0enqZqRw2o4x_s3Y8m_Te9Y9alai7zPy_kttmRHbR9sBf8qGl1AphK6tDNfxyRkOY5A6vxDQ3BOwlQiJ5bRONQAQZHcDa9_T8A_y2TtHdUYLbr8qDxMfxE=B9BF0CB4"
   DBMserver: "SER1:8017"
-  LOCAL_PATH: "C:\\workspace\\jira-github-dbm-lab\\"
+  LOCAL_PATH: "C:\\workspace\\jira-github-lab\\"
   NEW_STATE: ${{ github.event.client_payload.new_state_id}}
 
 on:
