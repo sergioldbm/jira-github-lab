@@ -22,6 +22,13 @@ jobs:
     if: ${{ github.event.client_payload.new_state_id == '10004' }}
     runs-on: self-hosted
     steps:
+
+      - name: Get DBMaestroAgent.jar file
+        run: |
+            cd "C:\\Temp\\dbm-agent-jar"
+            git fetch
+            git checkout tags/v24.1.0.11442
+
       - name: Checkout files
         run: |
               echo "This is a triggered event. Condition is:  ${{ github.event.client_payload.dbm_action }} , Package name is: ${{ github.event.client_payload.package_name }} , Status id is: ${{ env.new_state }}" 
