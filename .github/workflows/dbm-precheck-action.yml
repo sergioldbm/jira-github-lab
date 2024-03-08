@@ -63,6 +63,6 @@ jobs:
                   "Content-Type" = "application/json"
               }
               
-              $body = @{ "fields" : {"customfield_10238" : ["Precheck_OK"] } } | ConvertTo-Json
+              $body = @{ "fields" = @{"customfield_10238" = ["Precheck_OK"] } } | ConvertTo-Json
               Invoke-RestMethod -Uri $uri -Method Put -Headers $headers -Body $body
 
