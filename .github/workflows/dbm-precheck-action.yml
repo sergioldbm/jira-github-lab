@@ -51,22 +51,18 @@ jobs:
 
       - name: Precheck Package
         run: |
-              $dbm_result = java -jar "${{ env.jarPath }}" -PreCheck -ProjectName "${{ env.DBMprojectName }}" -Server "${{ env.DBMserver }}" -PackageName "${{ github.event.client_payload.package_name }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
-              echo $dbm_result
+              java -jar "${{ env.jarPath }}" -PreCheck -ProjectName "${{ env.DBMprojectName }}" -Server "${{ env.DBMserver }}" -PackageName "${{ github.event.client_payload.package_name }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
+              
 
 
       - name: Update Jira
         run: |
-            $uri = "https://sergiodbm.atlassian.net/rest/api/2/issue/${{ github.event.client_payload.package_name }}"
-            $headers = @{
-                "Authorization" = "Basic ${{ env.jira_secret }}"
-                "Content-Type" = "application/json"
-            }
-            
-            $body = @{
-              "fields" : {
-                            "customfield_10238" :["Precheck_OK"]
-                        }
-                    } | ConvertTo-Json
-            Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body
+              $uri = "https://sergiodbm.atlassian.net/rest/api/2/issue/${{ github.event.client_payload.package_name }}"
+              $headers = @{
+                  "Authorization" = "Basic ${{ env.jira_secret }}"
+                  "Content-Type" = "application/json"
+              }
+              
+              $body = @{ "fields" : {"customfield_10238" : ["Precheck_OK"] } | ConvertTo-Json
+              Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body
 
