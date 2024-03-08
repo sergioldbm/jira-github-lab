@@ -55,3 +55,18 @@ jobs:
               echo $dbm_result
 
 
+      - name: Update Jira
+        run: |
+            $uri = "https://sergiodbm.atlassian.net/rest/api/2/issue/${{ github.event.client_payload.package_name }}"
+            $headers = @{
+                "Authorization" = "Basic ${{ env.jira_secret }}"
+                "Content-Type" = "application/json"
+            }
+            
+            $body = @{
+              "fields" : {
+                            "customfield_10238" :["Precheck_OK"]
+                        }
+                    } | ConvertTo-Json
+            Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body
+
