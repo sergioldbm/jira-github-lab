@@ -52,7 +52,6 @@ jobs:
       - name: Precheck Package
         run: |
               java -jar "${{ env.jarPath }}" -PreCheck -ProjectName "${{ env.DBMprojectName }}" -Server "${{ env.DBMserver }}" -PackageName "${{ github.event.client_payload.package_name }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
-              echo $LastExitCode
               $precheck_error = $LastExitCode
               if ($LastExitCode -eq 0) {
                 $issue_status = "Precheck_OK"
@@ -66,7 +65,6 @@ jobs:
               }
               
               $body = @{ "fields" = @{"customfield_10238" = @($issue_status) } } | ConvertTo-Json
-              echo $body
               Invoke-RestMethod -Uri $uri -Method Put -Headers $headers -Body $body
              
 
