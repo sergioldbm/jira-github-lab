@@ -25,13 +25,16 @@ jobs:
       - name: Get DBMaestroAgent.jar file
         run: |
               cd "C:\\DBMaestro\\Agent\\"
-              git clone https://github.com/sergioldbm/dbm-agent-jar.git
-              cd ".\\dbm-agent-jar"
-              git checkout tags/23.4.2.11298
+              if (!(Test-Path -Path "C:\\DBMaestro\\Agent\\dbm-agent-jar\\")) {
+                git clone https://github.com/sergioldbm/dbm-agent-jar.git
+              } else {
+                cd ".\\dbm-agent-jar"
+                git checkout tags/23.4.2.11298
+              }
 
-      - name: Checkout files
+
+      - name: Checkout Package files
         run: |
-              echo "This is a triggered event. Condition is:  ${{ github.event.client_payload.dbm_action }} , Package name is: ${{ github.event.client_payload.package_name }} , Status id is: ${{ env.new_state }}" 
               cd ${{ env.local_path }}
               git pull origin
 
