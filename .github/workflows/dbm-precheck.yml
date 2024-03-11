@@ -23,15 +23,10 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Get DBMaestroAgent.jar file
-        run: |
-              cd "C:\\DBMaestro\\Agent\\"
-              if (!(Test-Path -Path "C:\\DBMaestro\\Agent\\dbm-agent-jar\\")) {
-                git clone https://github.com/sergioldbm/dbm-agent-jar.git
-              } else {
-                cd ".\\dbm-agent-jar"
-                git fetch
-                git checkout tags/v23.4.2.11298
-              }
+        uses: sergioldbm/dbm-agent-jar-action@main
+        with: 
+          version: "v23.4.2.11298"
+          target_path: "C:\\DBMaestro\\Agent\\" 
 
 
       - name: Checkout Package files
