@@ -52,10 +52,11 @@ jobs:
       - name: Precheck Package
         run: |
               java -jar "${{ env.jarPath }}" -PreCheck -ProjectName "${{ env.DBMprojectName }}" -Server "${{ env.DBMserver }}" -PackageName "${{ github.event.client_payload.package_name }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
-              
+              echo $LastExitCode
+              $precheck_error = $LastExitCode
+
       - name: Update Jira
         run: |
-              $precheck_error = $LastExitCode
               echo $LastExitCode
               if ($LastExitCode -eq 0) {
                 $issue_status = "Precheck_OK"
