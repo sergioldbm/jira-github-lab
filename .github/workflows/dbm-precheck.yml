@@ -26,6 +26,7 @@ jobs:
         run: |
               cd "C:\\DBMaestro\\Agent\\"
               git clone https://github.com/sergioldbm/dbm-agent-jar.git
+              cd ".\\dbm-agent-jar"
               git checkout tags/v24.1.0.11442
 
       - name: Checkout files
