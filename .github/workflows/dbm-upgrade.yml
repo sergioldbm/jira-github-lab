@@ -36,8 +36,6 @@ jobs:
                   "Authorization" = "Basic ${{ env.jira_secret }}"
                   "Content-Type" = "application/json"
               }
-              $body = @{ "fields" = @{"customfield_10238" = @($issue_status) } } | ConvertTo-Json
-              Invoke-RestMethod -Uri $uri -Method Put -Headers $headers -Body $body
               java -jar "${{ env.jarPath }}" -Upgrade -ProjectName "${{ env.DBMprojectName }}"  -EnvName "Release Source" -PackageName "${{ github.event.client_payload.package_id }}" -BackupBehavior True -RestoreBehavior True -Server "${{ env.DBMserver }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
               if ($LastExitCode -eq 0) {
                 $issue_status = "UpgradeRS_OK"
@@ -56,7 +54,7 @@ jobs:
               $body = @{ "fields" = @{"customfield_10238" = @($issue_status) } } | ConvertTo-Json
               Invoke-RestMethod -Uri $uri -Method Put -Headers $headers -Body $body
    
-      - name: Upgrading RS and QA Environment
+      - name: Upgrading Prod Environment
         if: ${{env.NEW_STATE}} == 10001
         run: |
               echo "Upgrading"
@@ -65,7 +63,6 @@ jobs:
                   "Authorization" = "Basic ${{ env.jira_secret }}"
                   "Content-Type" = "application/json"
               }
-              $body = @{ "fields" = @{"customfield_10238" = @($issue_status) } } | ConvertTo-Json
               java -jar "${{ env.jarPath }}" -Upgrade -ProjectName "${{ env.DBMprojectName }}"  -EnvName "Prod_Env_1" -PackageName " ${{ github.event.client_payload.package_id }}" -BackupBehavior True -RestoreBehavior True -Server "${{ env.DBMserver }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
               if ($LastExitCode -eq 0) {
                 $issue_status = "UpgradeProd_OK"
