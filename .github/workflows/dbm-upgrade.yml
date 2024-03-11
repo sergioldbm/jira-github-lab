@@ -31,7 +31,7 @@ jobs:
         if: ${{env.NEW_STATE}} == 10002
         run: |
               echo "Upgrading"
-              $uri = "https://sergiodbm.atlassian.net/rest/api/2/issue/${{ github.event.client_payload.package_name }}"
+              $uri = "https://sergiodbm.atlassian.net/rest/api/2/issue/${{ github.event.client_payload.package_id }}"
               $headers = @{
                   "Authorization" = "Basic ${{ env.jira_secret }}"
                   "Content-Type" = "application/json"
@@ -58,7 +58,7 @@ jobs:
         if: ${{env.NEW_STATE}} == 10001
         run: |
               echo "Upgrading"
-              $uri = "https://sergiodbm.atlassian.net/rest/api/2/issue/${{ github.event.client_payload.package_name }}"
+              $uri = "https://sergiodbm.atlassian.net/rest/api/2/issue/${{ github.event.client_payload.package_id }}"
               $headers = @{
                   "Authorization" = "Basic ${{ env.jira_secret }}"
                   "Content-Type" = "application/json"
