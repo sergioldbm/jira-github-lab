@@ -28,7 +28,7 @@ jobs:
               echo "Jira new state id:   ${{ github.event.client_payload.new_state_id }}" 
 
       - name: Upgrading RS and QA Environment
-        if: ${{env.NEW_STATE}} == 10002
+        if: ${{env.NEW_STATE == '10002' }} 
         run: |
               echo "Upgrading"
               $uri = "https://sergiodbm.atlassian.net/rest/api/2/issue/${{ github.event.client_payload.package_id }}"
@@ -55,7 +55,7 @@ jobs:
               Invoke-RestMethod -Uri $uri -Method Put -Headers $headers -Body $body
    
       - name: Upgrading Prod Environment
-        if: ${{env.NEW_STATE}} == 10001
+        if: ${{env.NEW_STATE == '10001' }}
         run: |
               echo "Upgrading"
               $uri = "https://sergiodbm.atlassian.net/rest/api/2/issue/${{ github.event.client_payload.package_id }}"
