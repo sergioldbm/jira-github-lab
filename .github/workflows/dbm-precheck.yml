@@ -69,6 +69,6 @@ jobs:
                   "Content-Type" = "application/json"
               }
               
-              $body = @{ "fields" = @{"customfield_10238" = @($issue_status) } } | ConvertTo-Json
+              $body = @{ "fields" = @{"customfield_10238" = @("$issue_status") } } | ConvertTo-Json
               Invoke-RestMethod -Uri $uri -Method Put -Headers $headers -Body $body
 
