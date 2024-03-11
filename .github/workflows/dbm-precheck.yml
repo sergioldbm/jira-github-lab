@@ -14,7 +14,7 @@ env:
 
 on:
   repository_dispatch:
-    types: precheck_action
+    types: precheck
   workflow_dispatch:
 
 jobs:
@@ -22,10 +22,9 @@ jobs:
     if: ${{ github.event.client_payload.new_state_id == '10004' }}
     runs-on: self-hosted
     steps:
-
       - name: Get DBMaestroAgent.jar file
         run: |
-              cd "C:\\Temp\\"
+              cd "C:\\DBMaestro\\Agent\\"
               git clone https://github.com/sergioldbm/dbm-agent-jar.git
               git checkout tags/v24.1.0.11442
 
