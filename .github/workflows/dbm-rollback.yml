@@ -7,7 +7,7 @@ env:
   DBMauthType: "DBmaestroAccount"
   DBMuserName: "su@dbmaestro.com"
   DBMauthToken: "zhsiecDKHTGeZBodgykvX1O5H0E5YzaI"
-  jira_secret: "ATATT3xFfGF08wUBk8Adbx0zDBPqiB78ISQGv0K5VYlbq9hOLd5bc0iATB8-0S-Ni0enqZqRw2o4x_s3Y8m_Te9Y9alai7zPy_kttmRHbR9sBf8qGl1AphK6tDNfxyRkOY5A6vxDQ3BOwlQiJ5bRONQAQZHcDa9_T8A_y2TtHdUYLbr8qDxMfxE=B9BF0CB4"
+  jira_secret: "c2VyZ2lvbEBkYm1hZXN0cm8uY29tOkFUQVRUM3hGZkdGMDg2emFINXBsdmJ1MXhTbC1YWXhFaHJxZFZSWHZ0Wk1ibGgzVDBSQ3RmX0lqVlQ2U0hzTENRcEtvWWpvTFk4UHBjZjZaMVBwZWMyZFlqU2diSERiRTVMVVVqMDBKRUhHazZDRlhscXhkUG9GQlpicHFQaEhCejRhNlZVX2Z2MVJERHp3NDZvR3RkaUw3SXZGeDR6ME9UeTNKOUhZYUNIdkNCamlKd2hBVVJkOD1DREY5Qjg5Mw=="
   DBMserver: "SER1:8017"
   LOCAL_PATH: "C:\\workspace\\jira-github-lab\\"
   NEW_STATE: ${{ github.event.client_payload.new_state_id}}
@@ -22,28 +22,43 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Print Event
-        run: |
-              echo "This is a triggered event. Condition is:  ${{ github.event.client_payload.dbm_action }} , Package name is: ${{ github.event.client_payload.package_id }} , Status id is: ${{ env.NEW_STATE }}" 
-              echo "Jira new state id:   ${{ github.event.client_payload.new_state_id }}" 
-        
-      - name: Downgrading DBM Environment
+      - name: Downgrading RS and QA Environment
+        if: ${{ env.NEW_STATE == '10000' }} 
         run: |
               echo "Downgrading"
-              if ( ${{ env.NEW_STATE }} -eq 10000 ) # ToDo
-                  {
-                    java -jar "${{ env.jarPath }}" -Rollback -ProjectName "${{ env.DBMprojectName }}"  -EnvName "Release Source" -PackageName " ${{ github.event.client_payload.package_id }}" -BackupBehavior True -RestoreBehavior True -Server "${{ env.DBMserver }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
-                    java -jar "${{ env.jarPath }}" -Rollback -ProjectName "${{ env.DBMprojectName }}"  -EnvName "QA_Env_1" -PackageName " ${{ github.event.client_payload.package_id }}" -BackupBehavior True -RestoreBehavior True -Server "${{ env.DBMserver }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"                  
-                  }
-              elseif ( ${{ env.NEW_STATE }} -eq 10002 ) # Ready to QA
-                  {
-                    java -jar "${{ env.jarPath }}" -Rollback -ProjectName "${{ env.DBMprojectName }}"  -EnvName "Prod_Env_1" -PackageName " ${{ github.event.client_payload.package_id }}" -BackupBehavior True -RestoreBehavior True -Server "${{ env.DBMserver }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
-                  }
-              else
-                  {
-                    echo ${{ github.event.client_payload.dbm_action }}
-                    Write-Output "Downgrade Transition not found ${{ env.NEW_STATE }}"
-                  }
-   
+              $uri = "https://sergiodbm.atlassian.net/rest/api/2/issue/${{ github.event.client_payload.package_id }}"
+              $headers = @{
+                  "Authorization" = "Basic ${{ env.jira_secret }}"
+                  "Content-Type" = "application/json"
+              }
+              java -jar "${{ env.jarPath }}" -Rollback -ProjectName "${{ env.DBMprojectName }}"  -EnvName "Release Source" -PackageName " ${{ github.event.client_payload.package_id }}" -BackupBehavior True -RestoreBehavior True -Server "${{ env.DBMserver }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
+              java -jar "${{ env.jarPath }}" -Rollback -ProjectName "${{ env.DBMprojectName }}"  -EnvName "QA_Env_1" -PackageName " ${{ github.event.client_payload.package_id }}" -BackupBehavior True -RestoreBehavior True -Server "${{ env.DBMserver }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"                  
+              if ($LastExitCode -eq 0) {
+                $issue_status = "RollbackRS_OK"
+              } else {
+                $issue_status = "RollbackRS_ERROR"
+              }
+              $body = @{ "fields" = @{"customfield_10238" = @($issue_status) } } | ConvertTo-Json
+              Invoke-RestMethod -Uri $uri -Method Put -Headers $headers -Body $body
+              - name: Downgrading RS and QA Environment
+        
+      - name: Downgrading Prod Environment
+        if: ${{ env.NEW_STATE == '10002' }} 
+        run: |
+              echo "Downgrading"
+              $uri = "https://sergiodbm.atlassian.net/rest/api/2/issue/${{ github.event.client_payload.package_id }}"
+              $headers = @{
+                  "Authorization" = "Basic ${{ env.jira_secret }}"
+                  "Content-Type" = "application/json"
+              }
+              java -jar "${{ env.jarPath }}" -Rollback -ProjectName "${{ env.DBMprojectName }}"  -EnvName "Prod_Env_1" -PackageName " ${{ github.event.client_payload.package_id }}" -BackupBehavior True -RestoreBehavior True -Server "${{ env.DBMserver }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
+              if ($LastExitCode -eq 0) {
+                $issue_status = "RollbackProd_OK"
+              } else {
+                $issue_status = "RollbackProd_ERROR"
+              }
+              $body = @{ "fields" = @{"customfield_10238" = @($issue_status) } } | ConvertTo-Json
+              Invoke-RestMethod -Uri $uri -Method Put -Headers $headers -Body $body
+
 
 
