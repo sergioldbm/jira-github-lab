@@ -2,7 +2,7 @@ name: Precheck With Action Workflow
 
 env:
   RUNNERS_OPTIONS: -c cookies=enabled
-  jarPath: "C:\\Temp\\dbm-agent-jar\\DBmaestroAgent.jar"
+  jarPath: "C:\\DBMaestro\\Agent\\dbm-agent-jar\\DBmaestroAgent.jar"
   DBMprojectName: "BrdJiraGitHub"
   DBMauthType: "DBmaestroAccount"
   DBMuserName: "su@dbmaestro.com"
