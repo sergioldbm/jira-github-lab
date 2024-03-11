@@ -1,0 +1,66 @@
+name: Precheck With Action Workflow
+
+env:
+  RUNNERS_OPTIONS: -c cookies=enabled
+  jarPath: "C:\\Temp\\dbm-agent-jar\\DBmaestroAgent.jar"
+  DBMprojectName: "BrdJiraGitHub"
+  DBMauthType: "DBmaestroAccount"
+  DBMuserName: "su@dbmaestro.com"
+  DBMauthToken: "zhsiecDKHTGeZBodgykvX1O5H0E5YzaI"
+  jira_secret: "c2VyZ2lvbEBkYm1hZXN0cm8uY29tOkFUQVRUM3hGZkdGMDg2emFINXBsdmJ1MXhTbC1YWXhFaHJxZFZSWHZ0Wk1ibGgzVDBSQ3RmX0lqVlQ2U0hzTENRcEtvWWpvTFk4UHBjZjZaMVBwZWMyZFlqU2diSERiRTVMVVVqMDBKRUhHazZDRlhscXhkUG9GQlpicHFQaEhCejRhNlZVX2Z2MVJERHp3NDZvR3RkaUw3SXZGeDR6ME9UeTNKOUhZYUNIdkNCamlKd2hBVVJkOD1DREY5Qjg5Mw=="
+  DBMserver: "SER1:8017"
+  local_path: "C:\\workspace\\jira-github-lab\\"
+  new_state: ${{ github.event.client_payload.new_state_id}}
+
+on:
+  repository_dispatch:
+    types: precheck_action
+  workflow_dispatch:
+
+jobs:
+  precheck:
+    if: ${{ github.event.client_payload.new_state_id == '10004' }}
+    runs-on: self-hosted
+    steps:
+
+      - name: Get DBMaestroAgent.jar file
+        run: |
+              cd "C:\\Temp\\"
+              git clone https://github.com/sergioldbm/dbm-agent-jar.git
+              git checkout tags/v24.1.0.11442
+
+      - name: Checkout files
+        run: |
+              echo "This is a triggered event. Condition is:  ${{ github.event.client_payload.dbm_action }} , Package name is: ${{ github.event.client_payload.package_name }} , Status id is: ${{ env.new_state }}" 
+              cd ${{ env.local_path }}
+              git pull origin
+
+
+      - name: Package Creation 
+        uses: sergioldbm/dbm-github-action@main
+        with:
+          command: 'CreateManifestFileAndPackage'
+          package_name: ${{ github.event.client_payload.package_name }}
+          files_path: "${{ env.local_path }}packages"
+          project_id: ${{ env.DBMprojectName }}
+          server: ${{ env.DBMserver }}
+          env_name: 'Release Source'
+          user_name: ${{ env.DBMuserName }}
+          password: ${{ env.DBMauthToken }}
+          jar_path: ${{ env.jarPath }}
+
+      - name: Precheck Package
+        run: |
+              java -jar "${{ env.jarPath }}" -PreCheck -ProjectName "${{ env.DBMprojectName }}" -Server "${{ env.DBMserver }}" -PackageName "${{ github.event.client_payload.package_name }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
+              
+      - name: Update Jira
+        run: |
+              $uri = "https://sergiodbm.atlassian.net/rest/api/2/issue/${{ github.event.client_payload.package_name }}"
+              $headers = @{
+                  "Authorization" = "Basic ${{ env.jira_secret }}"
+                  "Content-Type" = "application/json"
+              }
+              
+              $body = @{ "fields" = @{"customfield_10238" = @("Precheck_OK") } } | ConvertTo-Json
+              Invoke-RestMethod -Uri $uri -Method Put -Headers $headers -Body $body
+
