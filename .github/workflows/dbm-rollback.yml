@@ -40,7 +40,6 @@ jobs:
               }
               $body = @{ "fields" = @{"customfield_10238" = @($issue_status) } } | ConvertTo-Json
               Invoke-RestMethod -Uri $uri -Method Put -Headers $headers -Body $body
-              - name: Downgrading RS and QA Environment
         
       - name: Downgrading Prod Environment
         if: ${{ env.NEW_STATE == '10002' }} 
