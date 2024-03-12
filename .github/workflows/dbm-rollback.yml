@@ -11,6 +11,9 @@ env:
   DBMserver: "SER1:8017"
   LOCAL_PATH: "C:\\workspace\\jira-github-lab\\"
   NEW_STATE: ${{ github.event.client_payload.new_state_id}}
+  #workflowstates
+  READY_TO_QA: '10002'
+  TO_DO: '10000'
 
 on:
   repository_dispatch:
@@ -23,7 +26,8 @@ jobs:
 
     steps:
       - name: Downgrading RS and QA Environment
-        if: ${{ env.NEW_STATE == '10000' }} 
+        # If the new state is To Do, Downgrades package in QA and Release Source. Then updates the Issue status in Jira
+        if: ${{ env.NEW_STATE == env.TO_DO }} 
         run: |
               echo "Downgrading"
               $uri = "https://sergiodbm.atlassian.net/rest/api/2/issue/${{ github.event.client_payload.package_id }}"
@@ -42,7 +46,8 @@ jobs:
               Invoke-RestMethod -Uri $uri -Method Put -Headers $headers -Body $body
         
       - name: Downgrading Prod Environment
-        if: ${{ env.NEW_STATE == '10002' }} 
+        # If the new state is Ready to QA, Downgrades package in Production. Then updates the Issue status in Jira
+        if: ${{ env.NEW_STATE == env.READY_TO_QA }} 
         run: |
               echo "Downgrading"
               $uri = "https://sergiodbm.atlassian.net/rest/api/2/issue/${{ github.event.client_payload.package_id }}"

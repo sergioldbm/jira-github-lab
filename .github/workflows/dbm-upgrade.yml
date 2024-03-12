@@ -11,6 +11,9 @@ env:
   DBMserver: "SER1:8017"
   LOCAL_PATH: "C:\\workspace\\jira-github-lab\\"
   NEW_STATE: ${{ github.event.client_payload.new_state_id}}
+  #workflowstates
+  READY_TO_QA: '10002'
+  DONE: '10001'
 
 on:
   repository_dispatch:
@@ -28,7 +31,8 @@ jobs:
               echo "Jira new state id:   ${{ github.event.client_payload.new_state_id }}" 
 
       - name: Upgrading RS and QA Environment
-        if: ${{env.NEW_STATE == '10002' }} 
+        # If the new state is Ready to QA, Upgrades Release Source and then QA. Then updates the Issue status in Jira 
+        if: ${{env.NEW_STATE == env.READY_TO_QA }} 
         run: |
               echo "Upgrading"
               $uri = "https://sergiodbm.atlassian.net/rest/api/2/issue/${{ github.event.client_payload.package_id }}"
@@ -55,7 +59,8 @@ jobs:
               Invoke-RestMethod -Uri $uri -Method Put -Headers $headers -Body $body
    
       - name: Upgrading Prod Environment
-        if: ${{env.NEW_STATE == '10001' }}
+        # If the new state is Done, Upgrades Production. Then updates the Issue status in Jira
+        if: ${{env.NEW_STATE == env.DONE }}
         run: |
               echo "Upgrading"
               $uri = "https://sergiodbm.atlassian.net/rest/api/2/issue/${{ github.event.client_payload.package_id }}"

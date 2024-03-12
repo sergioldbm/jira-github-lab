@@ -11,6 +11,9 @@ env:
   DBMserver: "SER1:8017"
   local_path: "C:\\workspace\\jira-github-lab\\"
   new_state: ${{ github.event.client_payload.new_state_id}}
+  #workflowstates
+  READY_TO_REVIEW: '10004'
+  
 
 on:
   repository_dispatch:
@@ -19,7 +22,7 @@ on:
 
 jobs:
   precheck:
-    if: ${{ github.event.client_payload.new_state_id == '10004' }}
+    if: ${{ github.event.client_payload.new_state_id == env.READY_TO_REVIEW }}
     runs-on: self-hosted
     steps:
       - name: Get DBMaestroAgent.jar file
