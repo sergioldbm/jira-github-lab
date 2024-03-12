@@ -42,7 +42,7 @@ jobs:
 
       - name: Package Creation 
         # Creates the DBMaestro Package, generating the manifest, zip file, and uploading it to DBMaestro.
-        uses: sergioldbm/dbm-github-action@v2
+        uses: sergioldbm/dbm-github-action@v1
         with:
           command: 'CreateManifestFileAndPackage'
           package_name: ${{ github.event.client_payload.package_name }}
