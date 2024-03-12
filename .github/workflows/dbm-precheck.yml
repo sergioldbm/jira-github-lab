@@ -21,6 +21,8 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Job executed for Package Prechek. Triggeren when Jira state transitions to Ready To Review.
+  # The Job creates the Package and runs DBM Precheck. 
   precheck:
     if: ${{ github.event.client_payload.new_state_id == vars.READY_TO_REVIEW }}
     runs-on: self-hosted

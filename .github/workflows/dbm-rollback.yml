@@ -21,6 +21,8 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Job executed for Package Downgrade. Triggered when Jira state transitions to Ready To QA or To Do, from a more advanced Status.
+  # The Job donwngrades the Package in the required environments. 
   rollback:
     runs-on: self-hosted
 
