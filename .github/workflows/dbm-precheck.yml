@@ -23,7 +23,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Get DBMaestroAgent.jar file
-        uses: sergioldbm/dbm-agent-jar-action@main
+        uses: sergioldbm/dbm-agent-jar-action@v1
         with: 
           version: "v23.4.2.11298"
           target_path: "C:\\DBMaestro\\Agent\\" 
@@ -36,7 +36,7 @@ jobs:
 
 
       - name: Package Creation 
-        uses: sergioldbm/dbm-github-action@main
+        uses: sergioldbm/dbm-github-action@v1
         with:
           command: 'CreateManifestFileAndPackage'
           package_name: ${{ github.event.client_payload.package_name }}
@@ -51,7 +51,6 @@ jobs:
       - name: Precheck Package
         run: |
               java -jar "${{ env.jarPath }}" -PreCheck -ProjectName "${{ env.DBMprojectName }}" -Server "${{ env.DBMserver }}" -PackageName "${{ github.event.client_payload.package_name }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
-              $precheck_error = $LastExitCode
               if ($LastExitCode -eq 0) {
                 $issue_status = "Precheck_OK"
               } else {
