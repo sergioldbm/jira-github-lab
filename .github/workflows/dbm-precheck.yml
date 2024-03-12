@@ -22,7 +22,7 @@ on:
 
 jobs:
   precheck:
-    if: ${{ github.event.client_payload.new_state_id == env.READY_TO_REVIEW }}
+    if: ${{ github.event.client_payload.new_state_id == vars.READY_TO_REVIEW }}
     runs-on: self-hosted
     steps:
       - name: Get DBMaestroAgent.jar file
