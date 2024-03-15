@@ -9,7 +9,7 @@ env:
   DBMauthToken: "zhsiecDKHTGeZBodgykvX1O5H0E5YzaI"
   jira_secret: "c2VyZ2lvbEBkYm1hZXN0cm8uY29tOkFUQVRUM3hGZkdGMDg2emFINXBsdmJ1MXhTbC1YWXhFaHJxZFZSWHZ0Wk1ibGgzVDBSQ3RmX0lqVlQ2U0hzTENRcEtvWWpvTFk4UHBjZjZaMVBwZWMyZFlqU2diSERiRTVMVVVqMDBKRUhHazZDRlhscXhkUG9GQlpicHFQaEhCejRhNlZVX2Z2MVJERHp3NDZvR3RkaUw3SXZGeDR6ME9UeTNKOUhZYUNIdkNCamlKd2hBVVJkOD1DREY5Qjg5Mw=="
   DBMserver: "SER1:8017"
-  local_path: "C:\\workspace\\jira-github-lab\\download\\"
+  local_path: "C:\\workspace\\jira-github-lab\\"
   new_state: ${{ github.event.client_payload.new_state_id}}
   #workflowstates
   READY_TO_REVIEW_STATUS_ID: '10004'
