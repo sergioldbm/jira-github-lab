@@ -1,4 +1,4 @@
-name: Precheck With Action Workflow
+name: Precheck Workflow
 
 env:
   RUNNERS_OPTIONS: -c cookies=enabled
@@ -9,10 +9,10 @@ env:
   DBMauthToken: "zhsiecDKHTGeZBodgykvX1O5H0E5YzaI"
   jira_secret: "c2VyZ2lvbEBkYm1hZXN0cm8uY29tOkFUQVRUM3hGZkdGMDg2emFINXBsdmJ1MXhTbC1YWXhFaHJxZFZSWHZ0Wk1ibGgzVDBSQ3RmX0lqVlQ2U0hzTENRcEtvWWpvTFk4UHBjZjZaMVBwZWMyZFlqU2diSERiRTVMVVVqMDBKRUhHazZDRlhscXhkUG9GQlpicHFQaEhCejRhNlZVX2Z2MVJERHp3NDZvR3RkaUw3SXZGeDR6ME9UeTNKOUhZYUNIdkNCamlKd2hBVVJkOD1DREY5Qjg5Mw=="
   DBMserver: "SER1:8017"
-  local_path: "C:\\workspace\\jira-github-lab\\"
+  local_path: "C:\\workspace\\jira-github-lab\\download\\"
   new_state: ${{ github.event.client_payload.new_state_id}}
   #workflowstates
-  READY_TO_REVIEW: '10004'
+  READY_TO_REVIEW_STATUS_ID: '10004'
   
 
 on:
@@ -21,10 +21,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Job executed for Package Prechek. Triggeren when Jira state transitions to Ready To Review.
+  # Job executed for Package Prechek. Triggered when Jira state transitions to Ready To Review.
   # The Job creates the Package and runs DBM Precheck. 
   precheck:
-    if: ${{ github.event.client_payload.new_state_id == vars.READY_TO_REVIEW }}
+    if: ${{ github.event.client_payload.new_state_id == vars.READY_TO_REVIEW_STATUS_ID }}
     runs-on: self-hosted
     steps:
       - name: Get DBMaestroAgent.jar file
