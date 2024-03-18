@@ -73,9 +73,9 @@ jobs:
               }
               java -jar "${{ env.jarPath }}" -Upgrade -ProjectName "${{ env.DBMprojectName }}"  -EnvName "Prod_Env_1" -PackageName " ${{ github.event.client_payload.package_id }}" -BackupBehavior True -RestoreBehavior True -Server "${{ env.DBMserver }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
               if ($LastExitCode -eq 0) {
-                $issue_status = "UpgradeProd_OK"
+                $issue_status = "🚨UpgradeProd_OK"
               } else {
-                $issue_status = "UpgradeProd_ERROR"
+                $issue_status = "🚨UpgradeProd_ERROR"
               }
               $body = @{ "fields" = @{"customfield_10238" = @($issue_status) } } | ConvertTo-Json
               Invoke-RestMethod -Uri $uri -Method Put -Headers $headers -Body $body 
