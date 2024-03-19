@@ -37,8 +37,8 @@ jobs:
                   "Authorization" = "Basic ${{ env.jira_secret }}"
                   "Content-Type" = "application/json"
               }
-              java -jar "${{ env.jarPath }}" -Rollback -ProjectName "${{ env.DBMprojectName }}"  -EnvName "Release Source" -PackageName " ${{ github.event.client_payload.package_id }}" -BackupBehavior True -RestoreBehavior True -Server "${{ env.DBMserver }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
               java -jar "${{ env.jarPath }}" -Rollback -ProjectName "${{ env.DBMprojectName }}"  -EnvName "QA_Env_1" -PackageName " ${{ github.event.client_payload.package_id }}" -BackupBehavior True -RestoreBehavior True -Server "${{ env.DBMserver }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"                  
+              java -jar "${{ env.jarPath }}" -Rollback -ProjectName "${{ env.DBMprojectName }}"  -EnvName "Release Source" -PackageName " ${{ github.event.client_payload.package_id }}" -BackupBehavior True -RestoreBehavior True -Server "${{ env.DBMserver }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
               if ($LastExitCode -eq 0) {
                 $issue_status = "RollbackRS_OK"
               } else {
