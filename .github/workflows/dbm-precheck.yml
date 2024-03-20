@@ -31,7 +31,7 @@ jobs:
         # Obtains the DBMaestroAgent.jar from the repository
         uses: sergioldbm/dbm-agent-jar-action@v1
         with: 
-          version: "v23.4.2.11298"
+          version: "v24.1.0.11442"
           target_path: "C:\\DBMaestro\\Agent\\" 
 
 
