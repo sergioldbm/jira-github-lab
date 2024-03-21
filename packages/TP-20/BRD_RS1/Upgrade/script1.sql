@@ -5,7 +5,7 @@ GO
 
 
 GO
-CREATE TABLE [dbo].TP_19 (
+CREATE TABLE [dbo].TP_20 (
     [UserName] NCHAR (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
 );
 

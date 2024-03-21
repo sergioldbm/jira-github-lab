@@ -5,7 +5,7 @@ GO
 
 
 GO
-drop table [dbo].TP_19;
+drop table [dbo].TP_20;
 
 GO
 
