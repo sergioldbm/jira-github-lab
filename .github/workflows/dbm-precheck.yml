@@ -46,7 +46,7 @@ jobs:
         # Prechecks the package in DBMaestro, verifying Policy compliance. 
         # Updates the result of the Precheck, to Jira Issue
         run: |
-              java -jar "${{ env.jarPath }}" -PreCheck -ProjectName "${{ env.DBMprojectName }}" -Server "${{ env.DBMserver }}" -PackageName "${{ github.event.client_payload.package_name }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
+              java -jar "${{ env.agent_jar_path }}" -PreCheck -ProjectName "${{ env.DBMprojectName }}" -Server "${{ env.DBMserver }}" -PackageName "${{ github.event.client_payload.package_name }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
 
              
   ServiceNowDevOpsChange:
