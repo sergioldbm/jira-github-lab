@@ -64,7 +64,7 @@ jobs:
           # ServiceNow Instance URL
           instance-url: "https://dev244514.service-now.com/"
           # Orchestration Tool Id
-          tool-id: "db80f7f653998210b1895eb0a0490e0b"
+          tool-id: "3b63f7be53998210b1895eb0a0490efb"
           #tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           # GitHub Context
           context-github: ${{ toJSON(github) }}
