@@ -46,19 +46,7 @@ jobs:
         # Updates the result of the Precheck, to Jira Issue
         run: |
               java -jar "${{ env.jarPath }}" -PreCheck -ProjectName "${{ env.DBMprojectName }}" -Server "${{ env.DBMserver }}" -PackageName "${{ github.event.client_payload.package_name }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
-              if ($LastExitCode -eq 0) {
-                $issue_status = "Precheck_OK"
-              } else {
-                $issue_status = "🚨Precheck_ERROR"
-              }
-              $uri = "https://sergiodbm.atlassian.net/rest/api/2/issue/${{ github.event.client_payload.package_name }}"
-              $headers = @{
-                  "Authorization" = "Basic ${{ env.jira_secret }}"
-                  "Content-Type" = "application/json"
-              }
-              
-              $body = @{ "fields" = @{"customfield_10238" = @($issue_status) } } | ConvertTo-Json
-              Invoke-RestMethod -Uri $uri -Method Put -Headers $headers -Body $body
+
              
   ServiceNowDevOpsChange:
     # jobs that must complete successfully before this job will run
