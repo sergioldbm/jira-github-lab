@@ -2,7 +2,6 @@ name: Precheck Workflow
 
 env:
   RUNNERS_OPTIONS: -c cookies=enabled
-  jarPath: "C:\\DBMaestro\\Agent\\dbm-agent-jar\\DBmaestroAgent.jar"
   DBMprojectName: "BrdJiraGitHub"
   DBMauthType: "DBmaestroAccount"
   DBMuserName: "su@dbmaestro.com"
@@ -27,24 +26,10 @@ jobs:
     if: ${{ github.event.client_payload.new_state_id == vars.READY_TO_REVIEW_STATUS_ID }}
     runs-on: self-hosted
     steps:
-      - name: Get DBMaestroAgent.jar file
-        # Obtains the DBMaestroAgent.jar from the repository
-        uses: sergioldbm/dbm-agent-jar-action@v1
-        with: 
-          version: "v24.1.0.11442"
-          target_path: "C:\\DBMaestro\\Agent\\" 
-
-
-      - name: Checkout Package files
-        # Obtains the Package files from the repository
-        run: |
-              cd ${{ env.local_path }}
-              git pull origin
-
-
       - name: Package Creation 
-        # Creates the DBMaestro Package, generating the manifest, zip file, and uploading it to DBMaestro.
-        uses: sergioldbm/dbm-github-action@v1
+        # Creates the DBMaestro Package, generating the manifest, zip file, 
+        # and uploading it to DBMaestro.
+        uses: DBMaestroDev/dbm_github_actions/dbm-create-package@v1
         with:
           command: 'CreateManifestFileAndPackage'
           package_name: ${{ github.event.client_payload.package_name }}
@@ -54,7 +39,7 @@ jobs:
           env_name: 'Release Source'
           user_name: ${{ env.DBMuserName }}
           password: ${{ env.DBMauthToken }}
-          jar_path: ${{ env.jarPath }}
+          jar_path: "${{ env.agent_jar_path }}"
 
       - name: Precheck Package
         # Prechecks the package in DBMaestro, verifying Policy compliance. 
@@ -64,7 +49,7 @@ jobs:
               if ($LastExitCode -eq 0) {
                 $issue_status = "Precheck_OK"
               } else {
-                $issue_status = "Precheck_ERROR"
+                $issue_status = "🚨Precheck_ERROR"
               }
               $uri = "https://sergiodbm.atlassian.net/rest/api/2/issue/${{ github.event.client_payload.package_name }}"
               $headers = @{
@@ -75,4 +60,24 @@ jobs:
               $body = @{ "fields" = @{"customfield_10238" = @($issue_status) } } | ConvertTo-Json
               Invoke-RestMethod -Uri $uri -Method Put -Headers $headers -Body $body
              
+  ServiceNowDevOpsChange:
+    # jobs that must complete successfully before this job will run
+    needs: precheck
+    # type of machine to run the job on
+    runs-on: self-hosted
+    name: 'ServiceNow DevOps Change'
+    steps:
+      - name: ServiceNow Change
+        uses: ServiceNow/servicenow-devops-change@v3.0.0
+        with:
+          # Devops Integration Token
+          devops-integration-token: ${{ secrets.SN_DEVOPS_TOKEN }}
+          # ServiceNow Instance URL
+          instance-url: ${{ secrets.SN_INSTANCE_URL }}
+          # Orchestration Tool Id
+          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+          # GitHub Context
+          context-github: ${{ toJSON(github) }}
+          # Display Name of the Job
+          job-name: 'ServiceNow DevOps Change'
 
