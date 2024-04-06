@@ -72,6 +72,9 @@ jobs:
           # Display Name of the Job
           job-name: 'ServiceNow DevOps Change'
           change-request: '{} '
+          interval: '100'
+          timeout: '3600'
+          changeCreationTimeOut: '3600'
           abortOnChangeCreationFailure: true
           abortOnChangeStepTimeout: true
 
