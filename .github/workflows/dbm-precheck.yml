@@ -76,5 +76,5 @@ jobs:
           abortOnChangeStepTimeout: true
 
       - name: Output of Change Creation
-        run: echo "change-request-number = ${{ steps.create.outputs.change-request-number }}" >> $GITHUB_OUTPUT
+        run: echo "change-request-number = ${{ steps.create.outputs.change-request-number }}" 
 
