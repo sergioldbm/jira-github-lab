@@ -21,37 +21,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Job executed for Package Prechek. Triggered when Jira state transitions to Ready To Review.
-  # The Job creates the Package and runs DBM Precheck. 
-  precheck:
-    if: ${{ github.event.client_payload.new_state_id == vars.READY_TO_REVIEW_STATUS_ID }}
-    runs-on: self-hosted
-    steps:
-      - name: Package Creation 
-        # Creates the DBMaestro Package, generating the manifest, zip file, 
-        # and uploading it to DBMaestro.
-        uses: DBMaestroDev/dbm_github_actions/dbm-create-package@v1
-        with:
-          command: 'CreateManifestFileAndPackage'
-          package_name: ${{ github.event.client_payload.package_name }}
-          files_path: "${{ env.local_path }}packages"
-          project_id: ${{ env.DBMprojectName }}
-          server: ${{ env.DBMserver }}
-          env_name: 'Release Source'
-          user_name: ${{ env.DBMuserName }}
-          password: ${{ env.DBMauthToken }}
-          jar_path: "${{ env.agent_jar_path }}"
-
-      - name: Precheck Package
-        # Prechecks the package in DBMaestro, verifying Policy compliance. 
-        # Updates the result of the Precheck, to Jira Issue
-        run: |
-              java -jar "${{ env.agent_jar_path }}" -PreCheck -ProjectName "${{ env.DBMprojectName }}" -Server "${{ env.DBMserver }}" -PackageName "${{ github.event.client_payload.package_name }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
-
-             
   ServiceNowDevOpsChange:
-    # jobs that must complete successfully before this job will run
-    needs: precheck
     # type of machine to run the job on
     runs-on: self-hosted
     name: 'ServiceNow DevOps Change'
@@ -80,4 +50,37 @@ jobs:
 
       - name: Output of Change Creation
         run: echo "change-request-number = ${{ steps.create.outputs.change-request-number }}" 
+
+
+  # Job executed for Package Prechek. Triggered when Jira state transitions to Ready To Review.
+  # The Job creates the Package and runs DBM Precheck. 
+  precheck:
+    if: ${{ github.event.client_payload.new_state_id == vars.READY_TO_REVIEW_STATUS_ID }}
+    runs-on: self-hosted
+    # jobs that must complete successfully before this job will run
+    needs: ServiceNowDevOpsChange
+    steps:
+      - name: Package Creation 
+        # Creates the DBMaestro Package, generating the manifest, zip file, 
+        # and uploading it to DBMaestro.
+        uses: DBMaestroDev/dbm_github_actions/dbm-create-package@v1
+        with:
+          command: 'CreateManifestFileAndPackage'
+          package_name: ${{ github.event.client_payload.package_name }}
+          files_path: "${{ env.local_path }}packages"
+          project_id: ${{ env.DBMprojectName }}
+          server: ${{ env.DBMserver }}
+          env_name: 'Release Source'
+          user_name: ${{ env.DBMuserName }}
+          password: ${{ env.DBMauthToken }}
+          jar_path: "${{ env.agent_jar_path }}"
+
+      - name: Precheck Package
+        # Prechecks the package in DBMaestro, verifying Policy compliance. 
+        # Updates the result of the Precheck, to Jira Issue
+        run: |
+              java -jar "${{ env.agent_jar_path }}" -PreCheck -ProjectName "${{ env.DBMprojectName }}" -Server "${{ env.DBMserver }}" -PackageName "${{ github.event.client_payload.package_name }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
+
+             
+  
 
