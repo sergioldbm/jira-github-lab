@@ -2,6 +2,7 @@ name: Precheck Workflow
 
 env:
   RUNNERS_OPTIONS: -c cookies=enabled
+  jarPath: "C:\\DBMaestro\\Agent\\dbm-agent-jar\\DBmaestroAgent.jar"
   DBMprojectName: "BrdJiraGitHub"
   DBMauthType: "DBmaestroAccount"
   DBMuserName: "su@dbmaestro.com"
@@ -9,7 +10,6 @@ env:
   jira_secret: "c2VyZ2lvbEBkYm1hZXN0cm8uY29tOkFUQVRUM3hGZkdGMDg2emFINXBsdmJ1MXhTbC1YWXhFaHJxZFZSWHZ0Wk1ibGgzVDBSQ3RmX0lqVlQ2U0hzTENRcEtvWWpvTFk4UHBjZjZaMVBwZWMyZFlqU2diSERiRTVMVVVqMDBKRUhHazZDRlhscXhkUG9GQlpicHFQaEhCejRhNlZVX2Z2MVJERHp3NDZvR3RkaUw3SXZGeDR6ME9UeTNKOUhZYUNIdkNCamlKd2hBVVJkOD1DREY5Qjg5Mw=="
   DBMserver: "SER1:8017"
   local_path: "C:\\workspace\\jira-github-lab\\"
-  agent_jar_path: "C:\\Temp\\dbm-agent-jar\\DBmaestroAgent.jar"
   new_state: ${{ github.event.client_payload.new_state_id}}
   #workflowstates
   READY_TO_REVIEW_STATUS_ID: '10004'
@@ -21,49 +21,30 @@ on:
   workflow_dispatch:
 
 jobs:
-  ServiceNowDevOpsChange:
-    # type of machine to run the job on
-    runs-on: self-hosted
-    name: 'ServiceNow DevOps Change'
-    steps:
-      - name: ServiceNow Change
-        uses: ServiceNow/servicenow-devops-change@v3.1.0
-        id: create
-        with:
-          # Devops Integration Token
-          devops-integration-token: "yL2q9eTNL97fL7xsdajFZ3GxveZHXBAe"
-          # ServiceNow Instance URL
-          instance-url: "https://dev244514.service-now.com/"
-          # Orchestration Tool Id
-          tool-id: "3b63f7be53998210b1895eb0a0490efb"
-          #tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
-          # GitHub Context
-          context-github: ${{ toJSON(github) }}
-          # Display Name of the Job
-          job-name: 'ServiceNow DevOps Change'
-          change-request: '{} '
-          interval: '100'
-          timeout: '3600'
-          changeCreationTimeOut: '3600'
-          abortOnChangeCreationFailure: true
-          abortOnChangeStepTimeout: true
-
-      - name: Output of Change Creation
-        run: echo "change-request-number = ${{ steps.create.outputs.change-request-number }}" 
-
-
   # Job executed for Package Prechek. Triggered when Jira state transitions to Ready To Review.
   # The Job creates the Package and runs DBM Precheck. 
   precheck:
     if: ${{ github.event.client_payload.new_state_id == vars.READY_TO_REVIEW_STATUS_ID }}
     runs-on: self-hosted
-    # jobs that must complete successfully before this job will run
-    needs: ServiceNowDevOpsChange
     steps:
+      - name: Get DBMaestroAgent.jar file
+        # Obtains the DBMaestroAgent.jar from the repository
+        uses: sergioldbm/dbm-agent-jar-action@v1
+        with: 
+          version: "v24.1.0.11442"
+          target_path: "C:\\DBMaestro\\Agent\\" 
+
+
+      - name: Checkout Package files
+        # Obtains the Package files from the repository
+        run: |
+              cd ${{ env.local_path }}
+              git pull origin
+
+
       - name: Package Creation 
-        # Creates the DBMaestro Package, generating the manifest, zip file, 
-        # and uploading it to DBMaestro.
-        uses: DBMaestroDev/dbm_github_actions/dbm-create-package@v1
+        # Creates the DBMaestro Package, generating the manifest, zip file, and uploading it to DBMaestro.
+        uses: sergioldbm/dbm-github-action@v1
         with:
           command: 'CreateManifestFileAndPackage'
           package_name: ${{ github.event.client_payload.package_name }}
@@ -73,14 +54,24 @@ jobs:
           env_name: 'Release Source'
           user_name: ${{ env.DBMuserName }}
           password: ${{ env.DBMauthToken }}
-          jar_path: "${{ env.agent_jar_path }}"
+          jar_path: ${{ env.jarPath }}
 
       - name: Precheck Package
         # Prechecks the package in DBMaestro, verifying Policy compliance. 
         # Updates the result of the Precheck, to Jira Issue
         run: |
-              java -jar "${{ env.agent_jar_path }}" -PreCheck -ProjectName "${{ env.DBMprojectName }}" -Server "${{ env.DBMserver }}" -PackageName "${{ github.event.client_payload.package_name }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
-
+              java -jar "${{ env.jarPath }}" -PreCheck -ProjectName "${{ env.DBMprojectName }}" -Server "${{ env.DBMserver }}" -PackageName "${{ github.event.client_payload.package_name }}" -UseSSL False -AuthType DBmaestroAccount -UserName "${{ env.DBMuserName }}" -Password "${{ env.DBMauthToken }}"
+              if ($LastExitCode -eq 0) {
+                $issue_status = "Precheck_OK"
+              } else {
+                $issue_status = "Precheck_ERROR"
+              }
+              $uri = "https://sergiodbm.atlassian.net/rest/api/2/issue/${{ github.event.client_payload.package_name }}"
+              $headers = @{
+                  "Authorization" = "Basic ${{ env.jira_secret }}"
+                  "Content-Type" = "application/json"
+              }
+              
+              $body = @{ "fields" = @{"customfield_10238" = @($issue_status) } } | ConvertTo-Json
+              Invoke-RestMethod -Uri $uri -Method Put -Headers $headers -Body $body
              
-  
-
